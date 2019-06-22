@@ -1,25 +1,25 @@
 from flask import Flask, request, render_template, redirect
 import cgi
+import os
+import jinja2
+
+template_directory = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = jinja2.Environment(loader= jinja2.FileSystemLoader(template_directory), autoescape=True)
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
-form = """
-<!doctype html>
-<html>
-    <body>
-        <form action="/hello" method="post">
-            <label for="first_name">First Name</label>
-            <input type="text" name="first_name" />
-            <input type="submit" />
-        </form>
-    </body>
-</html>
-"""
+def is_interger(num):
+    try:
+        int(num)
+        return True
+    except ValueError:
+        return False
 
 @app.route("/")
 def index():
-    return form
+    template = jinja_env.get_template('hello-form.html')
+    return template.render()
 
 # @app.route('/')
 # def my_form():
@@ -37,7 +37,8 @@ def hello():
     first_name = request.form['first_name']         # for a POST Request
     # cgi.escape turns the simbols into html format and does not inject 
     # html into our form
-    return '<h1>Hello, ' + cgi.escape(first_name) + '</h1>' 
+    template = jinja_env.get_template('hello-greeting.html')
+    return  template.render(name=first_name)
 
 @app.route("/narnia/")
 def narnia():
@@ -47,38 +48,10 @@ def narnia():
 def mexico():
     return "Hola Mundo"
 
-# Validation lesson and excercise
-time_form = """
-    <style>
-        .error {{color: red;}}
-    </style>
-    <h1>Validate Time</h1>
-    <form method="POST">
-        <label>Hours (24-hour format)
-            <input name="hours" type="text" value='{hours}' />
-        </label>
-        <p class="error">{hours_error}</p>
-        <label>Minutes
-            <input name="minutes" type="text" value="{minutes}" />
-        </label>
-        <p class="error">{minutes_error}</p>
-        <input type="submit" value="Validate" />
-    </form>
-"""
 @app.route('/validate-time')
 def display_time_form():
-    return time_form.format(
-        hours='', 
-        hours_error='', 
-        minutes='',
-        minutes_error='')
-
-def is_interger(num):
-    try:
-        int(num)
-        return True
-    except ValueError:
-        return False
+    template = jinja_env.get_template('time-form.html')
+    return template.render()
 
 @app.route('/validate-time', methods=['POST'])
 def validate_time():
@@ -107,7 +80,8 @@ def validate_time():
         time = str(hours) + ":" + str(minutes)
         return redirect('/valid-time?time={0}'.format(time))
     else:
-        return time_form.format(
+        template = jinja_env.get_template('time-form.html')
+        return template.render(
             hours_error=hours_error, 
             minutes_error=minutes_error,
             hours=hours,
