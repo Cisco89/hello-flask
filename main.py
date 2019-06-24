@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template, redirect
 import cgi
 import os
-import jinja2
+# import jinja2
 
-template_directory = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader= jinja2.FileSystemLoader(template_directory), autoescape=True)
+# template_directory = os.path.join(os.path.dirname(__file__), 'templates')
+# jinja_env = jinja2.Environment(loader= jinja2.FileSystemLoader(template_directory), autoescape=True)
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -18,8 +18,12 @@ def is_interger(num):
 
 @app.route("/")
 def index():
-    template = jinja_env.get_template('hello-form.html')
-    return template.render()
+    # Jinja set up for template rendering
+    # template = jinja_env.get_template('hello-form.html')
+    # return template.render()
+
+    # Flask method of template rendering
+    return render_template('hello-form.html')
 
 # @app.route('/')
 # def my_form():
@@ -37,8 +41,10 @@ def hello():
     first_name = request.form['first_name']         # for a POST Request
     # cgi.escape turns the simbols into html format and does not inject 
     # html into our form
-    template = jinja_env.get_template('hello-greeting.html')
-    return  template.render(name=first_name)
+    # template = jinja_env.get_template('hello-greeting.html')
+    return  render_template('hello-greeting.html', name=first_name)
+
+# DoNow create two additional routes
 
 @app.route("/narnia/")
 def narnia():
@@ -50,8 +56,8 @@ def mexico():
 
 @app.route('/validate-time')
 def display_time_form():
-    template = jinja_env.get_template('time-form.html')
-    return template.render()
+    # template = jinja_env.get_template('time-form.html')
+    return render_template('time-form.html')
 
 @app.route('/validate-time', methods=['POST'])
 def validate_time():
@@ -80,8 +86,8 @@ def validate_time():
         time = str(hours) + ":" + str(minutes)
         return redirect('/valid-time?time={0}'.format(time))
     else:
-        template = jinja_env.get_template('time-form.html')
-        return template.render(
+        # template = jinja_env.get_template('time-form.html')
+        return render_template('time-form.html',
             hours_error=hours_error, 
             minutes_error=minutes_error,
             hours=hours,
@@ -101,7 +107,7 @@ def todos():
         task = request.form['task']
         tasks.append(task)
 
-    template = jinja_env.get_template('todos.html')
-    return template.render(title='TODOs', tasks=tasks)
+    # template = jinja_env.get_template('todos.html')
+    return render_template('todos.html', title='TODOs', tasks=tasks)
 
 app.run()
